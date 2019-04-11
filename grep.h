@@ -1,95 +1,62 @@
-//
-//  grep.h
-//  Project 1.1
-//
-//  Created by William Covington on 3/19/19.
-//  Copyright © 2019 William Covington. All rights reserved.
-//
-
-#ifndef grep_h
-#define grep_h
-
-#include <signal.h>
-#include <setjmp.h>
-#include <regex.h>
-#include <string.h> //remove this and include strcpy function
-
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
-
-#define    BLKSIZE    4096
-#define    NBLK    2047
-
-#define    FNSIZE    128
-#define    LBSIZE    4096
-#define    ESIZE    256
-#define    GBSIZE    256
-#define    READ    0
-#define    WRITE    1
-
-
-char    Q[]    = "";
-char    T[]    = "TMP";
-
-
-int    peekc;
-int    lastc;
-char    savedfile[FNSIZE];
-char    file[FNSIZE];
-char    linebuf[LBSIZE];
-char    rhsbuf[LBSIZE/2];
-char    expbuf[ESIZE+4];
-int    given;
-unsigned int    *addr1, *addr2;
-unsigned int    *dot, *dol, *zero;
-char    genbuf[LBSIZE];
-long    count;
-char    *nextip;
-char    *linebp;
-int    ninbuf;
-int    io;
-int    pflag;
-int    close(int);
-int    fork(void);
-int    wait(int *);
-
-char *getblock(unsigned int atl, int iof);
-char *getline_(unsigned int tl);
-char *place(char *sp, char *l1, char *l2);
-void add(int i);
-int advance(char *lp, char *ep);
-int append(int (*f)(void), unsigned int *a);
-void error(char *s);
-void exfile(void);
-void filename(int comm);
-int getchr(void);
-int getcopy(void);
-void getfile(int);
-int getnum(void);
-int getsub(void);
-void global(int k);
-void init(void);
+#define	BLKSIZE	4096
+#define	NBLK	2047
+#define	FNSIZE	128
+#define	LBSIZE	4096
+#define	ESIZE	256
+#define	GBSIZE	256
+#define	NBRA	5
+#define	KSIZE	9
+#define	CBRA	1
+#define	CCHR	2
+#define	CDOT	4
+#define	CCL	    6
+#define	NCCL	8
+#define	CDOL	10
+#define	CEOF	11
+#define	CKET	12
+#define	CBACK	14
+#define	CCIRC	15
+#define	STAR	01
+#define	READ	0
+#define	WRITE	1
+#define	SIGHUP	1
+#define	SIGQUIT	3
+int multiple_files = 0, argv_counter = 0, file_arr_size = 1, peekc, lastc, given, io, pflag,
+    vflag = 1, oflag, listf, listn, tfile = -1, tline, iblock = -1, oblock    = -1, ichanged, nleft, names[26], anymarks, nbra, subnewa, fchange, wrapp;
+long count, ninbuf;
+char Q[] = "", T[] = "TMP", *regex, *file_name, *files[100], savedfile[FNSIZE], file[FNSIZE], linebuf[LBSIZE], expbuf[ESIZE+4], genbuf[LBSIZE], *nextip, *linebp, *globp, *tfname, *loc1, *loc2, ibuff[BLKSIZE], obuff[BLKSIZE], *braslist[NBRA], *braelist[NBRA],tmpXXXXX[50] = "/tmp/eXXXXX";
+unsigned long regex_len = 0;
+unsigned int	*addr1, *addr2, *dot, *dol, *zero;
+unsigned nlall = 128;
+void    newline(void);
+void    error(char *s);
+void    cerror(char buf[], int* num);
+char*   modifyRegex(char* s);
+int     getchr(void);
+void    global(int k);
+void    setwide(void);
+void    squeeze(int i);
+void    print(void);
+char    *getline_(unsigned int tl);
+char    *getblock(unsigned int atl, int iof);
+void    nonzero(void);
+void    putd(void);
+void    compile(int eof);
+void    init(void);
+void    exfile(void);
+void    commands(void);
+int     append(int (*f)(void), unsigned int *a);
+int     putline(void);
 unsigned int *address(void);
-void newline(void);
-void print(void);
-void putchr(int ac);
-void putd(void);
-void putfile(void);
-int putline(void);
-void puts_(char *sp);
-void quit(int n);
-void setnoaddr(void);
-void squeeze(int i);
-void substitute(int inglob);
-
-
-//these two are not in ansi, but we need them
-#define    SIGHUP    1    //hangup
-#define    SIGQUIT    3    // quit (ASCII FS)
-
-
-#endif /* grep_h */
+void    filename(int comm);
+void    quit(int n);
+int     getfile(void);
+int     execute(unsigned int *addr);
+int     advance(char *lp, char *ep);
+int     cclass(char *set, int c, int af);
+int     backref(int i, char *lp);
